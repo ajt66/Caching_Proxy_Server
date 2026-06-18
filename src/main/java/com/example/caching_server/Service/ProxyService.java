@@ -24,6 +24,7 @@ public class ProxyService {
         this.environment = environment;
     }
 
+    @SuppressWarnings("null")
     public Mono<String> defaultAPICall(String url, String id) {
         try {
             return webBuilder
@@ -31,7 +32,8 @@ public class ProxyService {
                     .build()
                     .get()
                     .uri(uriBuilder -> uriBuilder
-                            .path(id)
+                            .pathSegment(id)
+                            .queryParam("select", "id,title,description,category,price")
                             .build())
                     .retrieve()
                     .onStatus(status -> status.isError(), clientResponse -> clientResponse.bodyToMono(String.class)

@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.logging.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import reactor.core.publisher.Mono;
@@ -19,6 +22,7 @@ import com.example.caching_server.Service.*;
 public class ProductsController {
 
     private final ProxyService pservice;
+    private final Logger logger = Logger.getLogger(ProductsController.class.getName());
 
     @Autowired
     ProductsController(ProxyService pservice) {
