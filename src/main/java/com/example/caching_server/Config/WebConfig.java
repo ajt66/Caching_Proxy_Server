@@ -20,22 +20,6 @@ public class WebConfig {
         return WebClient.builder();
     }
 
-    /*
-     * Bean
-     * public LoadingCache<Object, Object> caffeineConfig() {
-     * return Caffeine.newBuilder()
-     * .maximumSize(10_000)
-     * .expireAfterWrite(Duration.ofMinutes(5))
-     * .refreshAfterWrite(Duration.ofMinutes(1))
-     * .build(key -> createExpensiveGraph(key));
-     * }
-     * 
-     * private String createExpensiveGraph(Object key) {
-     * // TODO Auto-generated method stub
-     * return "Value for " + key;
-     * }
-     */
-
     @Bean
     public Caffeine<Object, Object> caffeineBuilder() {
         return Caffeine.newBuilder()
