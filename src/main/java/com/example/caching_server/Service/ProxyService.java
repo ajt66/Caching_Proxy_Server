@@ -7,6 +7,9 @@ import com.example.caching_server.model.products;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
+
 import reactor.core.publisher.Mono;
 import org.springframework.core.env.Environment;
 
@@ -16,6 +19,7 @@ import org.springframework.core.env.Environment;
 public class ProxyService {
     private final WebClient.Builder webBuilder;
     private Environment environment;
+    // private final CacheManager cacheManager;
     // private final UnifiedJedis jedis;
 
     @Autowired
@@ -25,6 +29,7 @@ public class ProxyService {
     }
 
     @SuppressWarnings("null")
+    @Cacheable(value = "productsCache", key = "#id")
     public Mono<String> defaultAPICall(String url, String id) {
         try {
             return webBuilder
@@ -43,8 +48,7 @@ public class ProxyService {
                                             + body))))
                     .bodyToMono(String.class);
         } catch (Exception e) {
-            throw new RuntimeException("Weather API call failed: " + e.getMessage(), e);
+            throw new RuntimeException("Origin Server API call failed: " + e.getMessage(), e);
         }
     }
-
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.ui.Model;
 import reactor.core.publisher.Mono;
 
@@ -22,16 +23,29 @@ import com.example.caching_server.Service.*;
 public class ProductsController {
 
     private final ProxyService pservice;
+    private final CacheManager cacheManager;
     private final Logger logger = Logger.getLogger(ProductsController.class.getName());
 
     @Autowired
-    ProductsController(ProxyService pservice) {
+    ProductsController(ProxyService pservice, CacheManager cacheManager) {
         this.pservice = pservice;
+        this.cacheManager = cacheManager;
     }
 
     @GetMapping("/{id}")
-    public Mono<String> idAPICall(@PathVariable String id) {
+    public Mono<ResponseEntity<String>> idAPICall(@PathVariable String id) {
         String baseAPI = "https://dummyjson.com/products";
+        Cache cache = cacheManager.getCache("productsCache");
+
+    /*    if(cache.get(id, String.class) != null) {
+            return Mono.just(cache.get(id, String.class))
+                   .map(cachevalue -> {
+                          HttpHeaders headers = new HttpHeaders();
+                          headers.add("X-Cache-Status", "HIT");
+                          return new ResponseEntity<>(cachevalue, headers, HttpStatus.OK);
+                   });
+        }
+    */
         return pservice.defaultAPICall(baseAPI, id);
     }
 
