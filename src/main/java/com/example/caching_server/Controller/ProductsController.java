@@ -21,7 +21,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.Cache;
 
 @RestController
-@RequestMapping("/products")
 public class ProductsController {
 
     private final ProxyService pservice;
@@ -34,8 +33,9 @@ public class ProductsController {
         this.cacheManager = cacheManager;
     }
 
-    @GetMapping("/{id}")
-    public Mono<ResponseEntity<String>> idAPICall(@PathVariable String id) {
+    @SuppressWarnings("null")
+    @GetMapping("/{api}/{id}")
+    public Mono<ResponseEntity<String>> idAPICall(@PathVariable String id, @PathVariable String api) {
         String baseAPI = "https://dummyjson.com/products";
         Cache cache = cacheManager.getCache("productsCache");
 
