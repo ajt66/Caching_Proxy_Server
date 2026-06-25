@@ -1,45 +1,50 @@
 package com.example.caching_server.Service;
 
 import com.example.caching_server.Config.*;
-//import com.example.caching_server.model.WeatherResponse;
-import com.example.caching_server.model.products;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 
 import reactor.core.publisher.Mono;
-import org.springframework.core.env.Environment;
-
-//import redis.clients.jedis.UnifiedJedis;
 
 @Service
 public class ProxyService {
     private final WebClient.Builder webBuilder;
-    private Environment environment;
-    // private final CacheManager cacheManager;
-    // private final UnifiedJedis jedis;
 
     @Autowired
-    public ProxyService(WebClient.Builder webBuilder, Environment environment) {
+    public ProxyService(WebClient.Builder webBuilder) {
         this.webBuilder = webBuilder;
-        this.environment = environment;
     }
 
     @SuppressWarnings("null")
-    @Cacheable(value = "productsCache", key = "#id")
-    public Mono<String> defaultAPICall(String url, String id) {
+    @Cacheable(value = "Cache", key = "#result")
+    public Mono<String> OriginServerCall(String result) {
+        try {
+            return webBuilder.build()
+                    .get()
+                    .uri(result)
+                    .retrieve()
+                    .onStatus(status -> status.isError(), clientResponse -> clientResponse.bodyToMono(String.class)
+                            .defaultIfEmpty("<no response body>")
+                            .flatMap(body -> Mono.error(new RuntimeException(
+                                    "Origin Server API failed with status " + clientResponse.statusCode() + ": "
+                                            + body))))
+                    .bodyToMono(String.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Origin Server API call failed: " + e.getMessage(), e);
+        }
+    }
+
+    @SuppressWarnings("null")
+    @Cacheable(value = "Cache", key = "#result")
+    public Mono<String> OriginServerCallWithId(String result) {
         try {
             return webBuilder
-                    .baseUrl(url)
                     .build()
                     .get()
-                    .uri(uriBuilder -> uriBuilder
-                            .pathSegment(id)
-                            .queryParam("select", "id,title,description,category,price")
-                            .build())
+                    .uri(result)
                     .retrieve()
                     .onStatus(status -> status.isError(), clientResponse -> clientResponse.bodyToMono(String.class)
                             .defaultIfEmpty("<no response body>")

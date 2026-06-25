@@ -30,7 +30,7 @@ public class WebConfig {
 
     @Bean
     public CacheManager cacheManager(Caffeine<Object, Object> caffeine) {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("productsCache");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager("Cache");
         cacheManager.setCaffeine(caffeine);
         // Enable async cache mode so async/reactive return types can be cached
         cacheManager.setAsyncCacheMode(true);
