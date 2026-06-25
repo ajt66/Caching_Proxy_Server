@@ -32,15 +32,17 @@ public class ProductsController {
         this.cacheManager = cacheManager;
     }
 
+    @Value("#{systemProperties['origin.url']}")
+    private String originUrl;
+
     @SuppressWarnings("null")
     @GetMapping("/{api}")
     public Mono<ResponseEntity<String>> defaultAPICall(@PathVariable String api) {
-        String baseURL = "https://dummyjson.com";
         Cache cache = cacheManager.getCache("Cache");
-        String result = baseURL + "/" + api;
+        String result = originUrl + "/" + api;
 
         if (cache.get(result, String.class) != null) {
-            logger.info("Cache hit for Origin url: " + result);
+            logger.info("\nCache hit for Origin url: " + result + "\n");
             return Mono.just(cache.get(result, String.class))
                     .map(cachevalue -> {
                         HttpHeaders headers = new HttpHeaders();
@@ -49,7 +51,7 @@ public class ProductsController {
                     });
         }
 
-        logger.info("Cache miss for Origin url: " + result);
+        logger.info("\nCache miss for Origin url: " + result + "\n");
         return pservice.OriginServerCall(result)
                 .map(response -> {
                     HttpHeaders headers = new HttpHeaders();
@@ -61,12 +63,11 @@ public class ProductsController {
     @SuppressWarnings("null")
     @GetMapping("/{api}/{id}")
     public Mono<ResponseEntity<String>> idAPICall(@PathVariable String id, @PathVariable String api) {
-        String baseURL2 = "https://dummyjson.com";
         Cache cache = cacheManager.getCache("Cache");
-        String result = baseURL2 + "/" + api + "/" + id;
+        String result = originUrl + "/" + api + "/" + id;
 
         if (cache.get(result, String.class) != null) {
-            logger.info("Cache hit for Origin url: " + result);
+            logger.info("\nCache hit for Origin url: " + result + "\n");
             return Mono.just(cache.get(result, String.class))
                     .map(cachevalue -> {
                         HttpHeaders headers = new HttpHeaders();
@@ -75,7 +76,7 @@ public class ProductsController {
                     });
         }
 
-        logger.info("Cache miss for Origin url: " + result);
+        logger.info("\nCache miss for Origin url: " + result + "\n");
         return pservice.OriginServerCallWithId(result)
                 .map(response -> {
                     HttpHeaders headers = new HttpHeaders();
